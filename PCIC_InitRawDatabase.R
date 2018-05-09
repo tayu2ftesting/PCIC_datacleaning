@@ -131,6 +131,27 @@ init_system_source_field_mapping_roles_table = function(schema_name,
 
 
 
+## . ###################################################
+## . ###################################################
+## . ############ Helper functions  ####################
+## . ###################################################
+## . ###################################################
+
+
+
+
+## get db_conn (that you close yourself) -----------------------
+get_db_conn = function(){
+  drv <- dbDriver("PostgreSQL")
+  db_conn <- dbConnect(drv, dbname = this_db$db_name,
+                       host = this_db$this_host, port = this_db$this_port, 
+                       user = this_db$this_user, password = this_db$this_pass)
+  return(db_conn)
+}
+
+
+
+
 ## db execute  -------------------------------------
 db_exec = function(sql_string){
   drv <- dbDriver("PostgreSQL")
@@ -143,5 +164,28 @@ db_exec = function(sql_string){
   #
 }
 
+
+
+## write to db ------------------------------------
+write_to_db = function(table_name, schema_name, table){
+  drv <- dbDriver("PostgreSQL")
+  db_conn <- dbConnect(drv, dbname = this_db$db_name,
+                       host = this_db$this_host, port = this_db$this_port, 
+                       user = this_db$this_user, password = this_db$this_pass)
+  dbWriteTable(db_conn, c(schema_name, table_name), table, row.names = FALSE, overwrite = TRUE)
+  dbDisconnect(db_conn)
+}
+
+
+## read entire table ------------------------------------
+read_table = function(table_name, schema_name){
+  drv <- dbDriver("PostgreSQL")
+  db_conn <- dbConnect(drv, dbname = this_db$db_name,
+                       host = this_db$this_host, port = this_db$this_port, 
+                       user = this_db$this_user, password = this_db$this_pass)
+  tbl = dbReadTable(db_conn, c(schema_name, table_name))
+  dbDisconnect(db_conn)
+  return(tbl)
+}
 
 
