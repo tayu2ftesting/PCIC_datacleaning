@@ -9,13 +9,17 @@ require(tools)
 # Note: R functions for initialization of the schema from scratch are located elsewhere. (where?)
 
 
-## Database name, port information. Edit this as necessary.
-this_db = c()
-this_db$db_name = "temporary"
-this_db$this_host = 'localhost'
-this_db$this_port = 5432
-this_db$this_user = 'taysql'
-this_db$this_pass = 'taysql'
+# The source file referenced below needs to exist:
+source("C:\\Users\\tyost\\Documents\\PCIC_postgres_login_info.R")
+
+# It should contain this (edit as needed):
+# this_db = c()
+# this_db$db_name = "database_name"
+# this_db$this_host = '10.0.0.69'
+# this_db$this_port = 5432
+# this_db$this_user = 'username@camdenhealth.org'
+# this_db$this_pass = 'postgres_password'
+
 
 
 # create new source ------------------------------------------
