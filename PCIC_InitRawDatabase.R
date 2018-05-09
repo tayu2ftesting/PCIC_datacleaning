@@ -2,6 +2,19 @@ require(RPostgreSQL)
 require(data.table)
 require(tidyverse)
 
+# PCIC Raw file database initialization code
+# May 2018
+
+## Database name, port information. Edit this as necessary.
+this_db = c()
+this_db$db_name = "temporary"
+this_db$this_host = 'localhost'
+this_db$this_port = 5432
+this_db$this_user = 'taysql'
+this_db$this_pass = 'taysql'
+
+
+
 # These functions initialize the system_* tables for the raw data schema.
 # They consist of SQL 'CREATE TABLE' strings; the source_field_mappings_filename should point
 # to a CSV with the source field mappings to be loaded into that table.
@@ -123,6 +136,19 @@ init_system_source_field_mapping_roles_table = function(schema_name,
   #
 }
 
+
+
+## db execute  -------------------------------------
+db_exec = function(sql_string){
+  drv <- dbDriver("PostgreSQL")
+  db_conn <- dbConnect(drv, dbname = this_db$db_name,
+                       host = this_db$this_host, port = this_db$this_port, 
+                       user = this_db$this_user, password = this_db$this_pass)
+  dbExecute(db_conn, sql_string)
+  #
+  dbDisconnect(db_conn)
+  #
+}
 
 
 
