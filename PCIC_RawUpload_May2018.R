@@ -157,6 +157,7 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   #
   # Now we actually write the table.
   message("Uploading table...")
+  #
   dbWriteTable(db_conn, c(schema_name, raw_table_name), input_file, append = FALSE, row.names = FALSE)
   #
   # Assemble a one-row data.table with the information needed to log the upload in the system_source_file_table.
