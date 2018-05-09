@@ -5,14 +5,7 @@ require(tidyverse)
 # PCIC Raw file database initialization code
 # May 2018
 
-## Database name, port information. Edit this as necessary.
-this_db = c()
-this_db$db_name = "temporary"
-this_db$this_host = 'localhost'
-this_db$this_port = 5432
-this_db$this_user = 'taysql'
-this_db$this_pass = 'taysql'
-
+source("C:\\Users\\tyost\\Documents\\PCIC_postgres_login_info.R")
 
 
 # These functions initialize the system_* tables for the raw data schema.
