@@ -10,7 +10,9 @@ require(tools)
 
 
 # The source file referenced below needs to exist:
-source("C:\\Users\\tyost\\Documents\\PCIC_postgres_login_info.R")
+username = Sys.info()[6]
+config_filename = paste0("C:\\Users\\", username, "\\Documents\\PCIC_postgres_login_info.R")
+source(config_filename)
 
 # It should contain this (edit as needed):
 # this_db = c()
