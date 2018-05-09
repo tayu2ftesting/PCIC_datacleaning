@@ -5,8 +5,10 @@ require(tidyverse)
 # PCIC Raw file database initialization code
 # May 2018
 
-# Load in postgres db server name, login, password...
-source("C:\\Users\\tyost\\Documents\\PCIC_postgres_login_info.R")
+# Load in R file with login info (with the right username):
+username = Sys.info()[6]
+config_filename = paste0("C:\\Users\\", username, "\\Documents\\PCIC_postgres_login_info.R")
+source(config_filename)
 
 
 # These functions initialize the system_* tables for the raw data schema.
@@ -37,6 +39,7 @@ init_database = function(schema_name, source_field_mappings_filename){
   init_system_source_file_table(schema_name = schema_name)
   init_system_source_field_mappings_table(schema_name = schema_name, source_field_mappings_filename = source_field_mappings_filename)
   init_system_source_field_mapping_roles_table(schema_name = schema_name)
+  return("Done.")
 }
 
 

@@ -9,7 +9,7 @@ require(tools)
 # Note: R functions for initialization of the schema from scratch are located elsewhere. (where?)
 
 
-# The source file referenced below needs to exist:
+# Load in R file with login info (with the right username):
 username = Sys.info()[6]
 config_filename = paste0("C:\\Users\\", username, "\\Documents\\PCIC_postgres_login_info.R")
 source(config_filename)
