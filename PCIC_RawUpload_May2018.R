@@ -63,7 +63,8 @@ create_new_source = function(source, schema_name, source_description = "", conta
   # Disconnect from the database.
   dbDisconnect(db_conn)
   #
-  return()
+  return_good = paste0("Source ", source, " created successfully.")
+  return(return_good)
 }
 
 
@@ -93,17 +94,23 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   # create a database connection (get_db_conn() should be defined below)
   db_conn = get_db_conn()
   #
+  # If this function terminates early (errors out etc.), close the database connection.
+  on.exit(dbDisconnect(db_conn))
+  #
   # Figure out which file number this is for this source.
-  file_num = 1 
   # if no rows are returned from dplyr::filter for this source, this must be the first file.
+  file_num = 1 
   system_source_file_table = dbReadTable(db_conn, c(schema_name, table_name = 'system_source_file_table'))
   source_copy = as.character(source)
   this_source = dplyr::filter(system_source_file_table, source == source_copy)
+  #
+  # Are there other files in the log from this source? If so, set file_num to the next number.
+  # Otherwise file_num = 1 as seen above.
   if(nrow(this_source) > 0){
     file_num = max(this_source$file_num) + 1
-  }
+  } 
   #
-  message(paste0("adding file number ", file_num, " for source ", source, " using field mappings ", input_source_identifier))
+  message(paste0("Adding file number: ", file_num, "   for source: ", source, "   using field mappings: ", input_source_identifier))
   #
   # date_received holds a string with the current date/time
   date_received = as.character(date())
@@ -125,6 +132,14 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   # either way this won't work, stop if that's the case.
   if(nrow(mappings) == 0){
     message(paste0("oops! no valid source file field name mappings found for tag ", input_source_identifier))
+    dbDisconnect(db_conn)
+    stop("Stopping. Database connection stopped. Nothing uploaded or updated, no changes made.")
+  }
+  #
+  # Check for source name mismatch.
+  if(mappings[1, 'source'] != source_copy){
+    message(paste0("oops! mismatch between provided source name (", source_copy, 
+                   ") and table source file name (",mappings[1, 'source'], ") for identifier tag ", input_source_identifier))
     dbDisconnect(db_conn)
     stop("Stopping. Database connection stopped. Nothing uploaded or updated, no changes made.")
   }
@@ -176,6 +191,9 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   #
   source_file_update_table_name = 'system_source_file_table'
   #
+  message(paste0("Appending a row to the source file table with the following information:"))
+  print(source_file_table_update)
+  #
   # Append the row to the system_source_file_table.
   dbWriteTable(db_conn, c(schema_name, source_file_update_table_name), 
                source_file_table_update, append = TRUE, row.names = FALSE)
@@ -183,7 +201,8 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   # Disconnect from the database. All done.
   dbDisconnect(db_conn)
   #
-  return()
+  return_good = paste0("Raw file uploaded successfully, database connection closed.")
+  return(return_good)
 }
 
 
@@ -211,15 +230,11 @@ get_db_conn = function(){
 ## get field mappings ------------------------------------------------------------------------
 get_field_mappings = function(input_source_identifier, schema_name, table_name = 'system_source_field_mappings_table'){
   #
-  drv <- dbDriver("PostgreSQL")
-  db_conn <- dbConnect(drv, dbname = this_db$db_name,
-                       host = this_db$this_host, port = this_db$this_port, 
-                       user = this_db$this_user, password = this_db$this_pass)
+  db_conn = get_db_conn()
   #
   sql_query = paste0("SELECT * FROM ", schema_name, ".", table_name, ";")
   #
   result = dbGetQuery(db_conn, sql_query)
-  #
   #
   filtered = dplyr::filter(result, source_file_identifier == input_source_identifier)
   #
