@@ -120,6 +120,14 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   # get the mappings for that file source from the field mappings table.
   mappings = get_field_mappings(input_source_identifier, schema_name)
   #
+  # if there are no rows in the mappings table, that means the mapping identifier tag is wrong or the data isn't there.
+  # either way this won't work, stop if that's the case.
+  if(nrow(mappings) == 0){
+    message(paste0("oops! no valid source file field name mappings found for tag ", input_source_identifier))
+    dbDisconnect(db_conn)
+    stop("Stopping. Database connection stopped. Nothing uploaded or updated, no changes made.")
+  }
+  #
   # now that we have the mappings, we can suck in the file.
   # this takes in a CSV with headers. separators other than commas can be specified in the 
   # function arguments.
