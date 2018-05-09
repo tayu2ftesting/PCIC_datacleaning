@@ -201,16 +201,19 @@ get_db_conn = function(){
 ## get field mappings ------------------------------------------------------------------------
 get_field_mappings = function(input_source_identifier, schema_name, table_name = 'system_source_field_mappings_table'){
   #
+  drv <- dbDriver("PostgreSQL")
+  db_conn <- dbConnect(drv, dbname = this_db$db_name,
+                       host = this_db$this_host, port = this_db$this_port, 
+                       user = this_db$this_user, password = this_db$this_pass)
+  #
   sql_query = paste0("SELECT * FROM ", schema_name, ".", table_name, ";")
   #
-  result = generic_query(sql_query)
+  result = dbGetQuery(db_conn, sql_query)
   #
   #
   filtered = dplyr::filter(result, source_file_identifier == input_source_identifier)
+  #
+  dbDisconnect(db_conn)
+  #
   return(filtered)
 }
-
-
-
-
-
