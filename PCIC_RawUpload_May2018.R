@@ -198,6 +198,18 @@ get_db_conn = function(){
   return(db_conn)
 }
 
+## get field mappings ------------------------------------------------------------------------
+get_field_mappings = function(input_source_identifier, schema_name, table_name = 'system_source_field_mappings_table'){
+  #
+  sql_query = paste0("SELECT * FROM ", schema_name, ".", table_name, ";")
+  #
+  result = generic_query(sql_query)
+  #
+  #
+  filtered = dplyr::filter(result, source_file_identifier == input_source_identifier)
+  return(filtered)
+}
+
 
 
 
