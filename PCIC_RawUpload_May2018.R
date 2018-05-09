@@ -97,7 +97,8 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   file_num = 1 
   # if no rows are returned from dplyr::filter for this source, this must be the first file.
   system_source_file_table = dbReadTable(db_conn, c(schema_name, table_name = 'system_source_file_table'))
-  this_source = dplyr::filter(system_source_file_table, source == source)
+  source_copy = as.character(source)
+  this_source = dplyr::filter(system_source_file_table, source == source_copy)
   if(nrow(this_source) > 0){
     file_num = max(this_source$file_num) + 1
   }
