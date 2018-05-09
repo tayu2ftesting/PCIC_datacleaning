@@ -5,6 +5,7 @@ require(tidyverse)
 # PCIC Raw file database initialization code
 # May 2018
 
+# Load in postgres db server name, login, password...
 source("C:\\Users\\tyost\\Documents\\PCIC_postgres_login_info.R")
 
 
