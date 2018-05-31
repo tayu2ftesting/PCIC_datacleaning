@@ -200,8 +200,17 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   dbWriteTable(db_conn, c(schema_name, source_file_update_table_name), 
                source_file_table_update, append = TRUE, row.names = FALSE)
   #
-  # Disconnect from the database. All done.
+  # Now we need to grab a copy of the (freshly updated) source file update table and upload that to mediawiki.
+  updated_table = dbReadTable(db_conn,  c(schema_name, source_file_update_table_name))
   dbDisconnect(db_conn)
+  #
+  vergon6_db_conn = get_db_conn(this_db = vergon6_db)
+  dbWriteTable(vergon6_db_conn, c('public', 'system_source_file_table'), updated_table, append = FALSE, row.names = FALSE)
+  #
+  #
+  # Disconnect from the database. All done.
+  
+  dbDisconnect(vergon6_db_conn)
   #
   return_good = paste0("Raw file uploaded successfully, database connection closed.")
   return(return_good)
@@ -221,13 +230,14 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
 
 
 ## get db_conn (that you close yourself) -----------------------
-get_db_conn = function(){
+get_db_conn = function(db_info = this_db){
   drv <- dbDriver("PostgreSQL")
-  db_conn <- dbConnect(drv, dbname = this_db$db_name,
-                       host = this_db$this_host, port = this_db$this_port, 
-                       user = this_db$this_user, password = this_db$this_pass)
+  db_conn <- dbConnect(drv, dbname = db_info$db_name,
+                       host = db_info$this_host, port = db_info$this_port, 
+                       user = db_info$this_user, password = db_info$this_pass)
   return(db_conn)
 }
+
 
 ## get field mappings ------------------------------------------------------------------------
 get_field_mappings = function(input_source_identifier, schema_name, table_name = 'system_source_field_mappings_table'){
