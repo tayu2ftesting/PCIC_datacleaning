@@ -195,8 +195,12 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   # Now we actually write the table.
   message("Uploading table...")
   #
+  # set all field types to text
   # browser()
-  dbWriteTable(db_conn, c(schema_name, raw_table_name), input_file, append = FALSE, row.names = FALSE)
+  field_types_list = as.list(rep('text', times = nrow(mappings) + 1))
+  names(field_types_list) = names(input_file)
+  dbWriteTable(db_conn, c(schema_name, raw_table_name), input_file, append = FALSE, row.names = FALSE, 
+               field.types = field_types_list)
   #
   # Assemble a one-row data.table with the information needed to log the upload in the system_source_file_table.
   source_file_table_update = data.table(source, file_uuid = raw_file_uuid, file_num, num_rows, filename, md5sum, 
