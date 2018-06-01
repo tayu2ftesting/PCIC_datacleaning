@@ -218,7 +218,7 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   #
   vergon6_db_conn = get_db_conn(db_info = vergon6_db)
   sql_string = paste0("TRUNCATE TABLE public.system_source_file_table;")
-  # dbExecute(vergon6_db_conn, sql_string)
+  dbExecute(vergon6_db_conn, sql_string)
   dbWriteTable(vergon6_db_conn, c('public', 'system_source_file_table'), updated_table, append = TRUE, row.names = FALSE)
   #
   #
