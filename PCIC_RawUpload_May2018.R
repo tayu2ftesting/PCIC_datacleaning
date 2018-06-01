@@ -3,6 +3,7 @@ require(tidyverse)
 require(RPostgreSQL)
 require(ids)
 require(tools)
+require(readxl)
 
 # R functions for uploading raw data (CSV) to postgres on PCIC
 # May 2018
@@ -130,6 +131,9 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   # get the mappings for that file source from the field mappings table.
   mappings = get_field_mappings(input_source_identifier, schema_name)
   #
+  #
+  # browser()
+  #
   # if there are no rows in the mappings table, that means the mapping identifier tag is wrong or the data isn't there.
   # either way this won't work, stop if that's the case.
   if(nrow(mappings) == 0){
@@ -139,7 +143,7 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   }
   #
   # Check for source name mismatch.
-  if(mappings[1, 'source'] != source_copy){
+  if(mappings[1, 'source_institution'] != source_copy){
     message(paste0("oops! mismatch between provided source name (", source_copy, 
                    ") and table source file name (",mappings[1, 'source'], ") for identifier tag ", input_source_identifier))
     dbDisconnect(db_conn)
@@ -150,11 +154,17 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   # this takes in a CSV with headers. separators other than commas can be specified in the 
   # function arguments.
   message("Reading in raw file...")
-  input_file = read.csv(filename, header = T, sep = file_separator)
+  file_extension = substr(filename, nchar(filename)-4+1, nchar(filename))
+  if(file_extension %in% c('xlsx', '.xls')){
+    input_file = read_excel(filename)
+  }
+  if(file_extension %in% c('.csv', '.txt')){
+    input_file = read.csv(filename, header = T, sep = file_separator)
+  }
   #
   # set the incoming file's field names to what was in the mappings table.
   # Note that the new field names will be applied in the order they appear in the mappings table.
-  names(input_file) = mappings$output_field_name
+  names(input_file) = mappings$field_output_name
   #
   # How many rows are in the input file?
   num_rows = nrow(input_file)
@@ -184,6 +194,7 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   # Now we actually write the table.
   message("Uploading table...")
   #
+  # browser()
   dbWriteTable(db_conn, c(schema_name, raw_table_name), input_file, append = FALSE, row.names = FALSE)
   #
   # Assemble a one-row data.table with the information needed to log the upload in the system_source_file_table.
@@ -204,12 +215,14 @@ add_raw_file = function(input_source_identifier, source, schema_name, filename =
   updated_table = dbReadTable(db_conn,  c(schema_name, source_file_update_table_name))
   dbDisconnect(db_conn)
   #
-  vergon6_db_conn = get_db_conn(this_db = vergon6_db)
-  dbWriteTable(vergon6_db_conn, c('public', 'system_source_file_table'), updated_table, append = FALSE, row.names = FALSE)
+  vergon6_db_conn = get_db_conn(db_info = vergon6_db)
+  sql_string = paste0("TRUNCATE TABLE public.system_source_file_table;")
+  # dbExecute(vergon6_db_conn, sql_string)
+  dbWriteTable(vergon6_db_conn, c('public', 'system_source_file_table'), updated_table, append = TRUE, row.names = FALSE)
   #
   #
   # Disconnect from the database. All done.
-  
+  #
   dbDisconnect(vergon6_db_conn)
   #
   return_good = paste0("Raw file uploaded successfully, database connection closed.")
@@ -248,7 +261,7 @@ get_field_mappings = function(input_source_identifier, schema_name, table_name =
   #
   result = dbGetQuery(db_conn, sql_query)
   #
-  filtered = dplyr::filter(result, source_file_identifier == input_source_identifier)
+  filtered = dplyr::filter(result, source_file_template == input_source_identifier)
   #
   dbDisconnect(db_conn)
   #
