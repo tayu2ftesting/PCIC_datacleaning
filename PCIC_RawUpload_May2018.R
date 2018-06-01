@@ -15,7 +15,8 @@ username = Sys.info()[6]
 config_filename = paste0("C:\\Users\\", username, "\\Documents\\PCIC_postgres_login_info.R")
 source(config_filename)
 
-# It should contain this (edit as needed):
+# It should contain two vectors with login data; one this_db, one vergon6_db, 
+#         both with appropriate details filled in:
 # this_db = c()
 # this_db$db_name = "database_name"
 # this_db$this_host = '10.0.0.69'
