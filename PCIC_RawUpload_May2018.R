@@ -9,7 +9,7 @@ require(readxl)
 # May 2018
 # Note: R functions for initialization of the schema from scratch are located elsewhere. (where?)
 
-
+# testing?
 
 # Load in R file with login info (with the right username):
 username = Sys.info()[6]
