@@ -10,7 +10,7 @@ username = Sys.info()[6]
 config_filename = paste0("C:\\Users\\", username, "\\Documents\\PCIC_postgres_login_info.R")
 source(config_filename)
 
-
+# test
 # These functions initialize the system_* tables for the raw data schema.
 # They consist of SQL 'CREATE TABLE' strings; the source_field_mappings_filename should point
 # to a CSV with the source field mappings to be loaded into that table.
